@@ -1,5 +1,4 @@
 #!/bin/bash
-[ -z "$PIG_SCRIPTS" ] && echo "PIG_SCRIPTS variable not set. Exiting" && exit 1;
 function hadoopLs {
 	hadoopLs=()
 	echo "hadoop fs -ls $1";
@@ -22,17 +21,16 @@ if [ -n "$2" ]; then
 fi
 
 
-hadoopLs "$dataset/analysis/";
+hadoopLs "$dataset/rewrite/";
 for dir in "${hadoopLs[@]}"; do
 	if [[ ! "$dir" == $pattern ]]; then
 		continue
 	fi
 	if [[ ! "$dir" == *_long ]]; then
-                #hmm, we want to skip longs! we only use the long stuff for giraph
-		dirBasename=`basename $dir`
-		IFS=_ read -a delimited <<< "$dirBasename"
-		rewriteMethod=${delimited[0]}
-		unset IFS
-		pig $PIG_SCRIPTS/roundtrip/$rewriteMethod.py $dir;
+		if [[ ! "$dir" == *_dict ]]; then
+			#hmm, we want to skip the 'long' stuff for giraph
+			pig pigAnalysis/analysis/indegree.py $dir;
+			pig pigAnalysis/analysis/outdegree.py $dir;
+		fi
 	fi
 done;

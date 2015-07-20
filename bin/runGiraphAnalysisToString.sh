@@ -9,7 +9,7 @@ function hadoopLs {
 	    fi
 	done
 }
-[ -z "$PIG_SCRIPTS" ] && echo "PIG_SCRIPTS variable not set. Exiting" && exit 1;
+
 if [ -z "$1" ];then
         echo "at least 1 argument required (dataset). Optional second arg is pattern used in hadoop ls"
         exit;
@@ -20,22 +20,18 @@ if [ -n "$2" ]; then
 	pattern="$2"
 fi
 
+#analysisMethods=(runGiraphPagerank.sh)
+#analysisMethods=(pageRank.py)
 
-hadoopLs "$dataset/roundtrip/";
+hadoopLs "$dataset/analysis/";
 for dir in "${hadoopLs[@]}"; do
 	if [[ ! "$dir" == $pattern ]]; then
-		continue
-	fi
-	if [[ ! "$dir" == *_long ]]; then
-		pig $PIG_SCRIPTS/evaluation/fetchTripleWeights.py $dir;
-	fi
+                continue
+        fi
+        #add our own custom pattern here as well. only want to perform this on longs
+        if [[ ! "$dir" == *_long ]]; then
+                continue
+        fi	
+	echo "running giraph analysis to string for $dir"
+	pig pigAnalysis/utils/giraphAnalysisToString.py $dir;
 done;
-
-
-echo "fetching query triples weights for random samples"
-iterations=10
-for (( it=1; it<=$iterations; it++ ))
-do
-	echo "generating random sample for iteration $it"
-	pig $PIG_SCRIPTS/evaluation/fetchTripleWeightsRandom.py $dataset $it
-done

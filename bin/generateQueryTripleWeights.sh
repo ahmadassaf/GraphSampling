@@ -1,5 +1,4 @@
 #!/bin/bash
-[ -z "$PIG_SCRIPTS" ] && echo "PIG_SCRIPTS variable not set. Exiting" && exit 1;
 function hadoopLs {
 	hadoopLs=()
 	echo "hadoop fs -ls $1";
@@ -21,21 +20,22 @@ if [ -n "$2" ]; then
 	pattern="$2"
 fi
 
-hadoopLs "$dataset/roundtrip/";
-roundtripSamples="${hadoopLs[@]}"
-hadoopLs "$dataset/baselines/";
-baselineSamples="${hadoopLs[@]}"
-allSamples=(`echo ${roundtripSamples[@]}` `echo ${baselineSamples[@]}`)
 
-for dir in "${allSamples[@]}"; do
+hadoopLs "$dataset/roundtrip/";
+for dir in "${hadoopLs[@]}"; do
 	if [[ ! "$dir" == $pattern ]]; then
 		continue
 	fi
 	if [[ ! "$dir" == *_long ]]; then
-		if [[ ! "$dir" == *_dict ]]; then
-                	#hmm, we want to skip longs! 
-			#dirBasename=`basename $dir`
-			pig $PIG_SCRIPTS/evaluation/fetchWeightDistribution.py $dir;
-		fi
+		pig pigAnalysis/evaluation/fetchTripleWeights.py $dir;
 	fi
 done;
+
+
+echo "fetching query triples weights for random samples"
+iterations=10
+for (( it=1; it<=$iterations; it++ ))
+do
+	echo "generating random sample for iteration $it"
+	pig pigAnalysis/evaluation/fetchTripleWeightsRandom.py $dataset $it
+done

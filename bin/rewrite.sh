@@ -1,5 +1,4 @@
 #!/bin/bash
-[ -z "$PIG_SCRIPTS" ] && echo "PIG_SCRIPTS variable not set. Exiting" && exit 1;
 function hadoopLs {
 	hadoopLs=()
 	echo "hadoop fs -ls $1";
@@ -23,7 +22,7 @@ enableCat=$2
 
 #rewrite stuff
 for rewriteMethod in "${rewriteMethods[@]}"; do
-pig $PIG_SCRIPTS/rewrite/${rewriteMethod} $dataset/$dataset.nt;
+pig pigAnalysis/rewrite/${rewriteMethod} $dataset/$dataset.nt;
 done
 
 #get all rewritten stuff locally

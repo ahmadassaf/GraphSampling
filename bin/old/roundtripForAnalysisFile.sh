@@ -4,10 +4,9 @@ if [ -z "$1" ];then
 	echo "at least 1 argument required (the analysis file)"
 	exit;
 fi
-[ -z "$PIG_SCRIPTS" ] && echo "PIG_SCRIPTS variable not set. Exiting" && exit 1;
 aggregateMethods=(max)
 skipAggregateFor="so-so"
-pigRoundtripDir="$PIG_SCRIPTS/roundtrip"
+pigRoundtripDir="$HOME/pigAnalysis/roundtrip"
 analysisFile=$(readlink -f $1)
 analysisBasename=`basename $analysisFile`;
 rewriteDir1=`dirname $analysisFile`;
