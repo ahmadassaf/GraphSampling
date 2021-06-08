@@ -1,4 +1,4 @@
-Graph Sampling
+# Graph Sampling
 
 This repository covers the analysis of our Graph Sampling method, and the scripts to run the SampLD pipeline. 
 
